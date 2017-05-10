@@ -1,0 +1,91 @@
+{
+  "core": {
+    "debug": true,
+    "root": "./node_modules/corifeus-server/src/",
+    "encoding": "base64",
+    "service": {
+      "mongoose": {
+        "url": "mongodb://localhost/testing"
+      },
+      "redis": {
+        "url": "redis://127.0.0.1:6379/0"
+      },
+      "phantom": {
+        "shutdownMinutes": 60,
+        "redisTtlMinutes": 10,
+        "timeoutSeconds": 60,
+        "key": ""
+      },
+      "express": {
+        "local": [
+          "192.168.0.",
+          "172.1.0.",
+          "::1",
+          "127.0.0.1",
+          "::ffff:127.0.0.1"
+        ],
+        "port": 8899,
+        "public": "./public"
+      },
+      "email": {
+        "prefix": "[DEV-CORY-SRV-FULL]",
+        "email": {
+          "to": "ciao@corifeus.com",
+          "from": "ciao@corifeus.com"
+        },
+        "nodemailer": {
+          "singleton": true,
+          "config": {
+            "host": "mail.corifeus.com",
+            "port": 465,
+            "secure": true,
+            "auth": {
+              "user": "ciao@corifeus.com",
+              "pass": ""
+            }
+          }
+        }
+      }
+    },
+    "lib": {
+      "console": {
+        "email": false
+      },
+      "cluster": {
+        "core": 0
+      },
+      "auth": {
+        "token": {
+          "expiryMinutes": 20
+        },
+        "admin": [
+          "admin",
+          "test"
+        ],
+        "passports" : [
+          {
+            "type": "ldap",
+            "ldapjs": {
+              "options": {
+                "url": "ldaps://corifeus.com",
+                "tlsOptions": {
+                  "rejectUnauthorized": false
+                }
+              },
+              "bind": {
+                "dn": "cn=${username},cn=Users,dc=ac,dc=corifeus,dc=com"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "deployer": {
+    "root": "./node_modules/corifeus-server-deployer/src/",
+    "hook": {
+      "secret": ""
+    }
+  }
+}
+

@@ -1,0 +1,153 @@
+[//]: #@corifeus-header
+
+[![Build Status](https://travis-ci.org/patrikx3/corifeus-server.svg?branch=master)](https://travis-ci.org/patrikx3/corifeus-server)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/patrikx3/corifeus-server/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/patrikx3/corifeus-server/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/patrikx3/corifeus-server/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/patrikx3/corifeus-server/?branch=master)  [![Trello](https://img.shields.io/badge/Trello-Corifeus-026aa7.svg)](https://trello.com/b/3NArfcD1/corifeus)
+  
+[![NPM](https://nodei.co/npm/corifeus-server.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/corifeus-server/)
+------
+
+# Corifeus Server - Motor
+
+### Node Version Requirement 
+```>=7.8.0```  
+   
+The ```async``` and ```await``` keywords are required.
+
+# Description
+
+
+[//]: #@corifeus-header:end
+
+
+
+This is the NodeJs based server / SocketIO / Mongoose.
+
+# corifeus-boot.json
+See [corifeus-boot.json](artifacts/skeleton/corifeus-boot.json)
+
+# Modules
+
+* Libaries
+  * auth
+  * cluster (1 - x cores at once)
+  * console
+  * error
+  * loader (libs and services in multiple projects)
+  * process
+  * settings
+  * util
+  
+* Services
+  * email
+  * express (roles)
+  * mongoose
+  * redis
+  * phantom (server side rendering via PhantomJs)
+
+# Layers
+There are built in layers for Express and Mongoose. A layer is a composite module in every project that uses the Corifeus Server. Every project is prefix. The built is ```core```.
+
+## Express
+Will become ```/api/PROJECT/APP/ROUTE/ACTION```.
+
+# Work
+* PhantomJs load babel-polyfill, libraryPath before loading
+
+# MongoDB and Redis for Windows
+
+[MongoDB Windows](artifacts/readme/mongodb.md)  
+[Redis Windows](artifacts/readme/redis.md)
+
+# Registry
+There is a ```require('corifeus-server').registry```, it shows all modules, libraries.
+
+```json
+{
+"status": "ok",
+"registry": {
+  "alias": {
+    "corifeus.core.auth": "corifeus.core.lib.auth",
+    "corifeus.core.loader": "corifeus.core.lib.loader",
+    "corifeus.core.settings": "corifeus.core.lib.settings",
+    "corifeus.core.util": "corifeus.core.lib.util",
+    "corifeus.core.email": "corifeus.core.service.email",
+    "corifeus.core.redis": "corifeus.core.service.redis",
+    "corifeus.core.mongoose": "corifeus.core.service.mongoose",
+    "corifeus.core.session": "corifeus.core.service.session",
+    "corifeus.core.phantom": "corifeus.core.service.phantom",
+    "corifeus.core.express": "corifeus.core.service.express"
+  },
+  "layers": {
+    "deployer": [
+      "express",
+      "mongoose"
+    ],
+    
+  },
+  "corifeus": {
+    "core": {
+      "lib": [
+        "auth",
+        "cluster",
+        "console",
+        "loader",
+        "process",
+        "settings",
+        "util"
+      ],
+      "service": [
+        "redis",
+        "email",
+        "mongoose",
+        "session",
+        "phantom",
+        "express"
+      ],
+      
+    }
+  },
+  "stats": {
+    "core": {
+      "service": {
+        "redis": {
+          "prefix": [
+            "session",
+            "phantom"
+          ],
+          
+        },
+        "mongoose": {
+          "models": [
+            "deployer-hook"
+          ],
+          
+        },
+        "express": {
+          "routes": {
+            "/api/core/auth/login": "POST",
+            "/api/core/auth/verify": "GET",
+            "/api/core/auth/prolongate": "GET",
+            "/api/core/phantom/render/*": "GET",
+            "/api/core/system/pkg": "GET",
+            "/api/core/system/registry": "GET",
+            "/api/core/system/settings": "GET",
+            "/api/core/util/random/:length?": "GET",
+            "/api/deployer/hook/:key": "POST"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+[//]: #@corifeus-footer
+
+---
+[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.0.6-615 on 5/4/2017, 1:08:59 AM
+
+[Corifeus](http://github.com/patrikx3/corifeus) by [Patrik Laszlo](http://patrikx3.tk)
+ 
+
+[//]: #@corifeus-footer:end

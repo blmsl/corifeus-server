@@ -1,0 +1,63 @@
+{
+    "name": "corifeus-server",
+    "version": "1.1.427-620",
+    "corifeus": {
+        "icon": "fa fa-server",
+        "time": "5/6/2017, 3:03:40 PM",
+        "time-stamp": 1494075820188,
+        "code": "Motor",
+        "publish": true
+    },
+    "license": "MIT",
+    "description": "Corifeus Server - Motor",
+    "main": "src/boot.ts",
+    "directories": {
+        "test": "test"
+    },
+    "scripts": {
+        "test": "grunt"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/patrikx3/corifeus-server.git"
+    },
+    "keywords": [
+        "corifeus",
+        "server"
+    ],
+    "author": "Patrik Laszlo <alabard@gmail.com>",
+    "bugs": {
+        "url": "https://github.com/patrikx3/corifeus-server/issues"
+    },
+    "homepage": "https://pages.corifeus.tk/corifeus-server",
+    "devDependencies": {
+        "corifeus-builder": "^1.7.504-501",
+        "grunt-express-server": "^0.5.3"
+    },
+    "peerDependencies": {
+        "ldapjs": "^1.0.1"
+    },
+    "dependencies": {
+        "babel-polyfill": "^6.23.0",
+        "body-parser": "^1.17.1",
+        "console-stamp": "^0.2.5",
+        "cookie-parser": "^1.4.3",
+        "corifeus-utils": "^1.1.100-140",
+        "express": "5.0.0-alpha.5",
+        "glob": "^7.1.1",
+        "ioredis": "^2.5.0",
+        "lodash": "^4.17.4",
+        "moment": "^2.18.1",
+        "mongoose": "^4.9.7",
+        "mz": "^2.6.0",
+        "nodemailer": "^4.0.1",
+        "phantom": "^4.0.3",
+        "pretty-ms": "^2.1.0",
+        "socketio": "^1.0.0",
+        "timestring": "^4.0.0",
+        "uuid": "^3.0.1"
+    },
+    "engines": {
+        "node": ">=7.8.0"
+    }
+}
