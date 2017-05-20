@@ -4,6 +4,8 @@ const cluster = require('cluster');
 
 const _ = require('lodash');
 
+const utils = require('corifeus-utils');
+
 const corifeus = require('../../registry');
 
 const bootLoader = async (type) => {
@@ -56,62 +58,7 @@ const loader = async (rootPath, namespace, type, whitelist = []) => {
             })
         });
 
-        let modules = [];
-        let lastWrongModule;
-        const ensureWants = () => {
-            let totalOk = true;
-            for(let index = 0 ; index < loadedModules.length; index++) {
-                const loadedModule = loadedModules[index];
-                if (modules.includes(loadedModule)) {
-                    continue;
-                }
-                let ok = true
-                loadedModule.wants.forEach((want) => {
-                    let found = false;
-                    modules.forEach((resultModule) => {
-                        if (resultModule.name == want ) {
-                            found = true;
-                        }
-                    })
-                    if (!found) {
-                        ok = false;
-                        totalOk = false;
-                    }
-                })
-                if (ok) {
-                    modules.push(loadedModule);
-                } else {
-                    lastWrongModule = {
-                        name: loadedModule.name,
-                        wants: loadedModule.wants
-                    }
-                }
-            }
-            return totalOk;
-        }
-
-        let checkCircular;
-        while(!ensureWants()) {
-            if (checkCircular === undefined) {
-                checkCircular = modules.length;
-                continue;
-            }
-            if (checkCircular === modules.length) {
-                const print = (datas) => {
-                    return datas.map((data) => {
-                        return {
-                            name: data.name,
-                            wants: data.wants
-                        }
-                    })
-                }
-                console.info('Loaded factories\n', print(loadedModules))
-                console.info('Wanted factories in order\n', print(modules));
-                console.info('Last wrong factory', lastWrongModule);
-                throw Error('circular loading factory');
-            }
-            checkCircular = modules.length;
-        }
+        const modules = utils.require.resovleDependencies(loadedModules);
 
         if (modules.length > 0) {
             console.info(`${consolePrefix} loading in order: ${modules.map((module) => module.name).join(', ')}`);

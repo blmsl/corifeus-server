@@ -3,3 +3,10 @@
 /*.log
 /corifeus-boot.json
 /yarn.lock
+
+/*.iws
+
+
+.idea/workspace.xml
+.idea/tasks.xml
+

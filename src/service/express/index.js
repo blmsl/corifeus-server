@@ -28,6 +28,8 @@ const service = function (settings) {
 
         const app = express();
 
+        app.disable('x-powered-by');
+
         // order is important here
         app.use(corifeusMiddleware({
             connectors: [
