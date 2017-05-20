@@ -159,7 +159,7 @@ There is a ```require('corifeus-server').registry```, it shows all modules, libr
 [//]: #@corifeus-footer
 
 ---
-[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.485-44
+[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.486-45
 
 [Corifeus](http://www.corifeus.tk) by [Patrik Laszlo](http://patrikx3.tk)
 
