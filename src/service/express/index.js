@@ -4,13 +4,12 @@ const _ = require('lodash');
 const path = require('path');
 const fs = require('mz/fs');
 const cookieParser = require('cookie-parser')
+const cors = require('cors');
 
 // order is important here
 const errorMiddleware = require('./middleware/error');
 const corifeusMiddleware = require('./middleware/corifeus');
 const sessionAuthMiddleware = require('./middleware/session-auth');
-const corsMiddleware = require('./middleware/cors');
-
 const inspect = require('./inspect');
 
 require('./response');
@@ -29,6 +28,8 @@ const service = function (settings) {
         const app = express();
 
         app.disable('x-powered-by');
+
+        app.use(cors())
 
         // order is important here
         app.use(corifeusMiddleware({

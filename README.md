@@ -40,6 +40,9 @@ This is the NodeJs based server / SocketIO / Mongoose.
 # corifeus-boot.json
 See [corifeus-boot.json](artifacts/skeleton/corifeus-boot.json)
 
+# Enable cors
+https://www.npmjs.com/package/cors
+
 # Modules
 
 * Libaries
@@ -159,7 +162,7 @@ There is a ```require('corifeus-server').registry```, it shows all modules, libr
 [//]: #@corifeus-footer
 
 ---
-[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.493-50
+[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.495-53
 
 [Corifeus](http://www.corifeus.tk) by [Patrik Laszlo](http://patrikx3.tk)
 
