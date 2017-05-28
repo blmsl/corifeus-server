@@ -45,9 +45,6 @@ const service = function (settings) {
 
         app.use(errorMiddleware());
 
-        app.use(corsMiddleware());
-
-
         // public
         const publicPath = path.normalize(`${process.cwd()}/${settings.public}`);
         console.info(`${service.prefix} static path: ${publicPath}`);

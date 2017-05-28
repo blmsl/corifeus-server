@@ -71,7 +71,7 @@ storage:
 [//]: #@corifeus-footer
 
 ---
-[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.495-53
+[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.512-72
 
 [Corifeus](http://www.corifeus.tk) by [Patrik Laszlo](http://patrikx3.tk)
 
