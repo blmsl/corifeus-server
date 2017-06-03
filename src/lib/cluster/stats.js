@@ -1,18 +1,36 @@
 const corifeus = require('../../registry');
+const cluster = require('cluster');
 
-module.exports = async() => {
-    const stats = {};
-    await Object.keys(corifeus).forEachAsync(async (project) => {
-        stats[project] = {};
-        await ['service', 'lib'].forEachAsync(async(type ) => {
-            await Object.keys(corifeus[project][type]).forEachAsync(async (module) => {
-                const moduleInstance = corifeus[project][type][module];
-                if (moduleInstance.hasOwnProperty('stats')) {
-                    stats[project][type] = stats[project][type] || {};
-                    stats[project][type][module] = await corifeus[project][type][module].stats;
-                }
-            })
+const stats = async() => {
+    return {};
+}
+
+stats.master = async () => {
+    const workers = Object.keys(cluster.workers).length;
+
+    const results = await corifeus.core.redis.communicate.exec({
+        action: 'corifeus.core.cluster.gatherStats',
+        channel: 'worker',
+        multi: workers,
+    });
+
+    let pageCount = 0;
+    const usage = {};
+    results.response.forEach((response, index) => {
+        pageCount += response.core.service.phantom.pageCount;
+        Object.keys(response.usage).forEach((key) => {
+            usage[key] = usage[key] || {};
+            usage[key][index] = response.usage[key];
         })
     })
+
+    const stats = {
+        workers: workers,
+        pageCount: pageCount,
+        usage: usage
+    };
+
     return stats;
 }
+
+module.exports = stats;

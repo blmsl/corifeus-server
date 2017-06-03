@@ -1,0 +1,1 @@
+module.exports.corifeus = require('./corifeus');

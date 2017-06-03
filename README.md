@@ -13,6 +13,8 @@ Though, if I know the solution, I will tell you. Besides, core errors will be fi
 
 ***If you want to extend, fix bugs or add in new features, I promptly merge pull requests or you can become a ```patrikx3``` member.***
 
+Besides, when I can support, please note, I cannot support old versions, only the current/latest version.
+
 ### Node Version Requirement 
 ``` 
 >=7.8.0 
@@ -20,13 +22,16 @@ Though, if I know the solution, I will tell you. Besides, core errors will be fi
    
 ### Built on Node 
 ``` 
-v7.10.0
+v8.0.0
 ```   
    
 The ```async``` and ```await``` keywords are required.
 
 Install NodeJs:    
 https://nodejs.org/en/download/package-manager/    
+  
+### Updating
+Since, I work full time, I can work only on weekends and Github updates are released only Sundays. Minor errors can be released any time, but reflects will be shown only in NPM.     
   
 # Description  
 
@@ -164,7 +169,7 @@ There is a ```require('corifeus-server').registry```, it shows all modules, libr
 [//]: #@corifeus-footer
 
 ---
-[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.512-72
+[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.532-18
 
 [Corifeus](http://www.corifeus.tk) by [Patrik Laszlo](http://patrikx3.tk)
 

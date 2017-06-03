@@ -3,6 +3,7 @@
 /*.log
 /corifeus-boot.json
 /yarn.lock
+/package-lock.json
 
 /*.iws
 

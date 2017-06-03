@@ -1,22 +1,15 @@
 const nodemailer = require('nodemailer');
 const os = require('os');
-const moment = require('moment');
 
 let singletonInstance;
 
+const corifeus = require('../../registry');
 
 const service = function(settings) {
 
     const consolePrefix = service.prefix;
 
     console.info(`${consolePrefix} started`);
-
-    let resolver;
-    let rejecter;
-    const bootPromise = new Promise((resolve, reject) => {
-        resolver = resolve;
-        rejecter = reject;
-    })
 
     if (settings.nodemailer.singleton && singletonInstance !== undefined) {
         return singletonInstance;
@@ -25,46 +18,47 @@ const service = function(settings) {
     const transporter = nodemailer
         .createTransport(settings.nodemailer.config);
 
-    let verified = false;
-    transporter.verify()
-        .then(() => {
-            verified = true;
-            console.info(`${consolePrefix} ready.`);
-            resolver(verified);
-        })
-        .catch((error) => {
-            console.error(`${consolePrefix} error.`, error);
-            verified = false;
-            rejecter(verified);
-        });
-
     const send = (from, to, subject, body) => {
         if (body === undefined) {
             body = subject;
             subject = '';
         }
-        const momentify = (js) => {
-            return Object.assign({
-                timestamp: moment().format(settings.moment)
-            }, js)
+
+        const bodyBase =  `
+<strong>${new Date().toLocaleString()}</strong>
+<br/><br/>
+<strong>PID:</strong> ${process.pid}
+`
+        if (Array.isArray(body) && body.length === 1 && body[0] instanceof Error) {
+            body = body[0]
         }
 
-        if (typeof body !== 'string') {
-            body = momentify(body);
-            body = JSON.stringify(body, null, 2);
-        } else {
+        if (body instanceof Error) {
+
             body = `
-${moment().format(settings.moment)}
+${bodyBase}
+<pre>            
+Error: ${body.message}
+${body.stack}
+</pre>            
+            `            
+        } else if (typeof body === 'object') {
+            body = `
+${bodyBase}
+<br/>
+JSON:
+<pre>
+${JSON.stringify(body, null, 2)}
+</pre>            
+            `
 
-${body}
-`;
         }
-
+        
         const message = {
             from: from,
             to: to,
             subject: subject,
-            text: body
+            html: body
         };
         console.debug(`${consolePrefix} send new mail subject: ${subject}`);
         transporter.sendMail(message)
@@ -79,12 +73,16 @@ ${body}
 
     const factory = {
         send: (options) => {
-            let {body, subject} = options;
-            subject = `${settings.prefix}: ${os.hostname()} - ${subject}`;
-            send(settings.email.from, settings.email.to, subject, body);
+            let {body, subject, from, to} = options;
+
+            from = from || settings.email.from
+            to = to || settings.email.to
+
+            subject = `${settings.prefix}: ${corifeus.core.settings.instance} - ${subject}`;
+            send(from, to, subject, body);
         },
         boot: async () => {
-            await bootPromise;
+            await transporter.verify();
         }
     };
 

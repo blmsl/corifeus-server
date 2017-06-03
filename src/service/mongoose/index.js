@@ -14,9 +14,7 @@ const service = function(settings) {
 
     Object.keys(globalSettings).forEach((schemaRoot) => {
 
-        const layerRoot = schemaRoot === 'core' ? 'service' : 'layer';
-
-        const dir = globalSettings[schemaRoot].root + `${layerRoot}/mongoose/schema`;
+        const dir = globalSettings[schemaRoot].root + `layer/mongoose/schema`;
         const dirFile =  path.resolve(`${dir}`)
         if (!fs.existsSync(dirFile)) {
             return false;
@@ -33,7 +31,6 @@ const service = function(settings) {
     })
     mongoose.set('debug', true);
     mongoose.Promise = global.Promise;
-
 
 
     let resolver, rejecter;

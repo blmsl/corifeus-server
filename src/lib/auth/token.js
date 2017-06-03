@@ -51,7 +51,6 @@ exports.verify = async(token) => {
 
     // todo add use a pure redis function instead of readis function, use its own - tokenSession service
     const secret = await corifeus.core.redis.client.getBuffer(settings.redis.prefix.cluster.auth.secret)
-
     let [data, hash] = token.split(divider);
     data = new Buffer(data, settings.boot.core.encoding).toString();
     const hashCrypto = crypto.createHmac('sha512', secret)
@@ -78,10 +77,10 @@ exports.prolongate = async (token) => {
 }
 
 exports.auto = async(username, expiryArg ) => {
-    expiryArg = expiryArg || corifeus.core.util.time.span('1 week');
+    expiryArg = expiryArg || utils.time.span('1 week');
     const autoData = exports.sign({
         username: username,
-        random: await corifeus.core.util.random(32)
+        random: await utils.random(32)
     }, expiryArg);
     return autoData;
 }

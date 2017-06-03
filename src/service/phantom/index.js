@@ -53,7 +53,7 @@ const service = function(settings) {
     };
 
     const debugResult = (result) => {
-        console.debug(`${consolePrefix} result`, corifeus.core.util.object.reduce(result));
+        console.debug(`${consolePrefix} result`, utils.object.reduce(result));
     }
 
     Object.defineProperty(this, 'stats', {
@@ -202,7 +202,7 @@ const service = function(settings) {
             console.debug(`${consolePrefix} status: ${status}`);
 
             if (status !== 'success') {
-                rejecter(`${consolePrefix}: status: ${status}`);
+                rejecter(new Error(`${consolePrefix}: status: ${status}`));
                 return promise;
             }
 

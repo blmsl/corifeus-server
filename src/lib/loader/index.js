@@ -8,18 +8,36 @@ const utils = require('corifeus-utils');
 
 const corifeus = require('../../registry');
 
-const bootLoader = async (type) => {
+const bootLoader = async (options) => {
+
+    if (typeof options === 'string') {
+        options= {
+            type: options
+        };
+    }
+
     const boot = require('../settings').boot;
     const namespaces = Object.keys(boot);
     for(let index = 0; index < namespaces.length; index++) {
         const namespace = _.camelCase(namespaces[index]);
         const project = boot[namespace];
         const root = path.normalize(`${process.cwd()}/${project.root}`);
-        await loader(root, namespace, type)
+
+        await loader(Object.assign(options, {
+            rootPath: root,
+            namespace: namespace,
+        }))
+
     }
 }
 
-const loader = async (rootPath, namespace, type, whitelist = []) => {
+//const loader = async (rootPath, namespace, type, whitelist = []) => {
+const loader = async (options) => {
+
+    let { rootPath, namespace, type, whitelist, blacklist } = options;
+    whitelist = whitelist || [];
+    blacklist = blacklist || [];
+
     const consolePrefix = `[LOADER] [${type.toUpperCase()}] [${_.kebabCase(namespace).toUpperCase()}]`;
 
 
@@ -34,6 +52,10 @@ const loader = async (rootPath, namespace, type, whitelist = []) => {
             if (whitelist.length > 0 && !whitelist.includes(module)) {
                 return;
             }
+            if (blacklist.includes(module)) {
+                return;
+            }
+
             let loader;
 
             if (module.endsWith('.js')) {
@@ -107,7 +129,7 @@ const loader = async (rootPath, namespace, type, whitelist = []) => {
                     }
                 })
                 corifeus[namespace][type][module.name] = module.loader;
-
+                module.loader.prefix = '';
 
             } else {
                 const settings = corifeus.core.settings.boot[namespace][type][module.name];

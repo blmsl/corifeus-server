@@ -38,7 +38,7 @@ console.error = function() {
         try {
             corifeus.core.service.email.send({
                 body: arguments,
-                subject: 'error  core'
+                subject: 'error core'
             })
         } catch (e) {
             _error(`${module.exports.prefix} the email is not working: ${e.message}`)

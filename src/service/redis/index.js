@@ -7,10 +7,15 @@ function service(settings) {
 
     console.info(`${consolePrefix} started`);
 
-    const client = new Redis(settings.url)
+    this.new = () => {
+        return new Redis(settings.url);
+    }
+
+    const client = this.new();
     this.client = client;
 
     const prefixes = {};
+
 
     this.stats = {
     }
@@ -56,6 +61,12 @@ function service(settings) {
             })
         })
     }
+
+    this.communicate = require('./communicate')({
+        instance: this,
+        factory: service
+    });
+
 }
 
 service.alias = 'redis';

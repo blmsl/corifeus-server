@@ -7,10 +7,12 @@ const _ = require('lodash');
 express.response.error = function(error) {
 
     if (this.req.corifeus.local) {
-        console._error(`${corifeus.core.express.prefix }`, error);
+        console._error(`${corifeus.core.express.prefix}`, error);
+        /*
         if (!(error instanceof Error)) {
             console.trace();
         }
+        */
     }
 
     let result = {
@@ -53,9 +55,6 @@ express.response.ok = function(json) {
     if (_.hasIn(this.req, 'corifeus.session.token')) {
         const token = this.req.corifeus.session.token;
         this.set(corifeus.core.settings.token.header, token);
-        this.cookie(corifeus.core.settings.token.cookie, token);
-    } else {
-        this.clearCookie(corifeus.core.settings.token.cookie);
     }
 
     this.status(200).send(Object.assign({

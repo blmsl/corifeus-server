@@ -8,18 +8,15 @@ const cors = require('cors');
 
 // order is important here
 const errorMiddleware = require('./middleware/error');
-const corifeusMiddleware = require('./middleware/corifeus');
 const sessionAuthMiddleware = require('./middleware/session-auth');
 const inspect = require('./inspect');
 
 require('./response');
-require('./request');
-
 const corifeus = require('../../registry');
 
 const service = function (settings) {
 
-    this.decorator = service.decorator;
+    this.decorator = corifeus.core.lib.express.decorator;
     this.lib = service.lib;
 
     this.boot = async () => {
@@ -29,12 +26,26 @@ const service = function (settings) {
 
         app.disable('x-powered-by');
 
-        app.use(cors())
+        const corsHeaders = [
+            corifeus.core.settings.token.header,
+            corifeus.core.settings.token.auto.header,
+            'content-type',
+        ];
+
+        const corsSettings = {
+            "origin": "*",
+            "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+            credentials: true,
+            exposedHeaders: corsHeaders,
+            allowedHeaders: corsHeaders,
+        };
+//        console.debug(service.prefix, 'cors', corsSettings);
+        app.use(cors(corsSettings))
 
         // order is important here
-        app.use(corifeusMiddleware({
+        app.use(corifeus.core.lib.express.middleware.corifeus({
             connectors: [
-                require('./middleware/connector/logger')
+                corifeus.core.lib.express.middleware.corifeus.connector.logger(service.prefix)
             ]
         }));
         app.use(cookieParser())
@@ -66,7 +77,7 @@ const service = function (settings) {
             let isAuthorizedProjectApp = false;
             const projectApp = express();
 
-            const layerRoot = project === 'core' ? 'service' : 'layer';
+            const layerRoot = 'layer';
 
             const projectAppFile =  path.resolve(projects[project].root + `${layerRoot}/express/app.js`);
             if (fs.existsSync(projectAppFile)) {
@@ -89,6 +100,11 @@ const service = function (settings) {
                 // use the child app and the main app
                 // ********** main middle
                 const projectAppRoutePathRouter = await require(`${projectRouteDir}/${projectRoutePathJs}`)(projectApp, app);
+
+                if (!projectAppRoutePathRouter) {
+                    continue;
+                }
+
                 let isAuthorizedProjectRoutePathRouter = inspect.auth(projectAppRoutePathRouter);
 
                 projectApp.use(`/${projectRoutePath}`, projectAppRoutePathRouter);
@@ -144,7 +160,7 @@ const service = function (settings) {
 
         let resolver, rejecter;
         app.listen(settings.port, () => {
-            console.info(`${service.prefix} ready`);
+            console.info(`${service.prefix} ready on ${settings.port}`);
             resolver();
         })
 
@@ -157,13 +173,5 @@ const service = function (settings) {
 
 service.wants = ['mongoose', 'redis', 'phantom', 'session'];
 service.alias = 'express';
-
-if (_.hasIn(corifeus, 'core.loader.loadLibSync')) {
-    service.decorator = corifeus.core.loader.loadLibSync(`${__dirname}/decorator`);
-    service.lib = corifeus.core.loader.loadLibSync(`${__dirname}/lib`);
-} else {
-    console.log('This cannot happen!!! :)');
-    process.exit();
-}
 
 module.exports = service
