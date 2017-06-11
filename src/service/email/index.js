@@ -82,7 +82,7 @@ ${JSON.stringify(body, null, 2)}
             send(from, to, subject, body);
         },
         boot: async () => {
-            await transporter.verify();
+
         }
     };
 

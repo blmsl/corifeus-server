@@ -5,43 +5,48 @@
     "encoding": "base64",
     "service": {
       "mongoose": {
-        "url": "mongodb://localhost/testing"
+        "url": "mongodb://localhost/server"
       },
       "redis": {
         "url": "redis://127.0.0.1:6379/0"
       },
       "phantom": {
-        "shutdownMinutes": 60,
-        "redisTtlMinutes": 10,
+        "enabled": false,
+        "redisTtlMinutes": 1440,
+        "timeoutSeconds": 60,
+        "key": ""
+      },
+      "chrome": {
+        "redisTtlMinutes": 1440,
         "timeoutSeconds": 60,
         "key": ""
       },
       "express": {
         "local": [
-          "192.168.0.",
-          "172.1.0.",
+          "192.168.78.",
+          "172.19.78.",
           "::1",
           "127.0.0.1",
           "::ffff:127.0.0.1"
         ],
-        "port": 8899,
+        "port": 23501,
         "public": "./public"
       },
       "email": {
-        "prefix": "[DEV-CORY-SRV-FULL]",
+        "prefix": "[DEV-P3X-SRV]",
         "email": {
-          "to": "ciao@corifeus.com",
-          "from": "ciao@corifeus.com"
+          "to": "sys@p3x.com",
+          "from": "sys@p3x.com"
         },
         "nodemailer": {
           "singleton": true,
           "config": {
-            "host": "mail.corifeus.com",
+            "host": "mail.p3x.com",
             "port": 465,
             "secure": true,
             "auth": {
-              "user": "ciao@corifeus.com",
-              "pass": ""
+              "user": "sys@p3x.com",
+              "pass": "cigany"
             }
           }
         }
@@ -52,28 +57,32 @@
         "email": false
       },
       "cluster": {
-        "core": 0
+        "core": 1,
+        "control": {
+          "port": 23502,
+          "password": "you-choose"
+        }
       },
       "auth": {
+        "open": false,
         "token": {
           "expiryMinutes": 20
         },
         "admin": [
-          "admin",
-          "test"
+          "me"
         ],
-        "passports" : [
+        "passports": [
           {
             "type": "ldap",
             "ldapjs": {
               "options": {
-                "url": "ldaps://corifeus.com",
+                "url": "ldaps://hidden.com",
                 "tlsOptions": {
                   "rejectUnauthorized": false
                 }
               },
               "bind": {
-                "dn": "cn=${username},cn=Users,dc=ac,dc=corifeus,dc=com"
+                "dn": "cn=${username},cn=Users,dc=ac,dc=mine,dc=com"
               }
             }
           }
@@ -88,4 +97,3 @@
     }
   }
 }
-

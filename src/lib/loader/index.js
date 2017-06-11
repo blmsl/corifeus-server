@@ -26,6 +26,7 @@ const bootLoader = async (options) => {
         await loader(Object.assign(options, {
             rootPath: root,
             namespace: namespace,
+            boot: boot,
         }))
 
     }
@@ -34,7 +35,7 @@ const bootLoader = async (options) => {
 //const loader = async (rootPath, namespace, type, whitelist = []) => {
 const loader = async (options) => {
 
-    let { rootPath, namespace, type, whitelist, blacklist } = options;
+    let { rootPath, namespace, type, whitelist, blacklist, boot } = options;
     whitelist = whitelist || [];
     blacklist = blacklist || [];
 
@@ -52,7 +53,7 @@ const loader = async (options) => {
             if (whitelist.length > 0 && !whitelist.includes(module)) {
                 return;
             }
-            if (blacklist.includes(module)) {
+            if (blacklist.includes(`${namespace}.${type}.${module}`)) {
                 return;
             }
 
@@ -61,6 +62,10 @@ const loader = async (options) => {
             if (module.endsWith('.js')) {
                 return;
             }
+            if (boot && boot[namespace] && boot[namespace][type] && boot[namespace][type][module] && boot[namespace][type][module].enabled === false) {
+                return;
+            }
+
             loader = require(`${rootPath}/${type}/${module}`);
 
             module = _.camelCase(module);
@@ -76,11 +81,16 @@ const loader = async (options) => {
             loadedModules.push({
                 name: module,
                 loader: loader,
-                wants: wants
+                wants: wants.filter((want) => {
+                    return !_.hasIn(corifeus, `core.settings.boot.${namespace}.${type}.${want}.enabled`) || corifeus.core.settings.boot[namespace][type][want].enabled !== false;
+                })
             })
         });
 
-        const modules = utils.require.resovleDependencies(loadedModules);
+        const modules = utils.require.resovleDependencies({
+            modules: loadedModules,
+            debug: boot && boot.core.debug
+        });
 
         if (modules.length > 0) {
             console.info(`${consolePrefix} loading in order: ${modules.map((module) => module.name).join(', ')}`);
@@ -133,6 +143,11 @@ const loader = async (options) => {
 
             } else {
                 const settings = corifeus.core.settings.boot[namespace][type][module.name];
+
+                if (settings !== undefined && settings.hasOwnProperty('enabled') && settings.enabled === false) {
+                    console.log(consolePrefixModule, 'Module is disabled.')
+                    continue;
+                }
 
                 let serviceInstance;
 

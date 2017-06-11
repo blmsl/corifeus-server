@@ -20,8 +20,6 @@ const service = function(settings) {
     const redis = corifeus.core.redis;
     const redisPrefix = redis.register.prefix('phantom');
 
-    let shutdownMinutes = settings.shutdownMinutes * 1000 * 60;
-
     if (corifeus.core.settings.boot.debug) {
         //shutdownMinutes =10;
     }
@@ -33,14 +31,6 @@ const service = function(settings) {
     } else {
         console.info(`${consolePrefix} Cache disabled`);
     }
-
-    // seconds
-    if (shutdownMinutes> 0) {
-        console.info(`${consolePrefix} shutdownMinutes: ${ms(shutdownMinutes)}`)
-    } else {
-        console.info(`${consolePrefix} shutdownMinutes right away`);
-    }
-
 
     const timeoutMs = settings.timeoutSeconds * 1000;
     const minIteration = 8;
@@ -56,49 +46,9 @@ const service = function(settings) {
         console.debug(`${consolePrefix} result`, utils.object.reduce(result));
     }
 
-    Object.defineProperty(this, 'stats', {
-        get: async() => {
-            return {
-                pageCount: this.pageCount,
-                instanceTimeoutVerbose: utils.time.verbose(instanceTimeoutDate)
-            }
-        }
-    });
 
-    let instance;
-    let _pageCount = 0;
-    let instanceTimeoutSetTimeout;
-    let instanceTimeoutDate;
-    Object.defineProperty(this, 'pageCount', {
-        get: () => {
-            return _pageCount
-        },
-        set: (value) => {
-            _pageCount = value;
-            console.debug(`${consolePrefix} instance: ${_pageCount}`);
-            if (_pageCount === 0 && instance !== undefined) {
-              clearTimeout(instanceTimeoutSetTimeout);
-              console.debug(`${consolePrefix} shutting down PhantomJS in ${ms(shutdownMinutes)}`);
-              const quit = () => {
-                  const lastInstance = instance;
-                  instance = undefined;
-                  lastInstance.exit().catch((e) => console.error(e));
-                  console.info(`${consolePrefix} shutting down PhantomJS done`);
-              };
-              if (shutdownMinutes < 1) {
-                  quit();
-                  instanceTimeoutDate = undefined;
-              } else {
-                  instanceTimeoutSetTimeout = setTimeout(quit, shutdownMinutes)
-                  instanceTimeoutDate = Date.now() + shutdownMinutes;
-
-              }
-            }
-        }
-    });
     this.instance = async () => {
-        if (instance === undefined) {
-            instance = await phantom.create([
+        return await phantom.create([
                 '--ignore-ssl-errors=yes'
             ], {
                 /*
@@ -110,27 +60,11 @@ const service = function(settings) {
                  logLevel: 'info',
                  */
             });
-        }
-        return instance;
     }
 
-    const urlPromise = {};
     this.render= async (url) => {
 
-        if (urlPromise.hasOwnProperty(url)) {
-            return urlPromise[url];
-        }
-
-        this.pageCount++;
-
-        let alreadyRemoved = false;
-        const subtractInstance = () => {
-            if (!alreadyRemoved) {
-                alreadyRemoved = true;
-                this.pageCount--;
-            }
-        }
-
+        let instance;
         const start = new Date().getTime();
 
         let page;
@@ -141,13 +75,14 @@ const service = function(settings) {
                 if (page !== undefined) {
                     try {
                         await page.close();
+                        if (instance !== undefined) {
+                            await instance.exit();
+                        }
                         console.debug(`Quit page`)
                     } catch (e ) {
                         console.error(e);
                     }
                 }
-                subtractInstance();
-                delete urlPromise[url];
             }
             resolver = async (result) => {
                 await all()
@@ -158,7 +93,6 @@ const service = function(settings) {
                 reject(error);
             };
         })
-        urlPromise[url] = promise;
 
         try {
             const redisKey = `${redisPrefix}${url}`;
@@ -174,7 +108,7 @@ const service = function(settings) {
                 }
             }
 
-            const instance = await this.instance();
+            instance = await this.instance();
 
             page = await instance.createPage();
             page.setting('userAgent', agent);
@@ -285,7 +219,9 @@ const service = function(settings) {
 
             return promise;
         } catch(e) {
-            subtractInstance();
+            if (instance !== undefined) {
+                await instance.exit();
+            }
             throw e;
         }
     }

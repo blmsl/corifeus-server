@@ -22,7 +22,7 @@ Besides, when I can support, please note, I cannot support old versions, only th
    
 ### Built on Node 
 ``` 
-v8.0.0
+v8.1.0
 ```   
    
 The ```async``` and ```await``` keywords are required.
@@ -31,7 +31,7 @@ Install NodeJs:
 https://nodejs.org/en/download/package-manager/    
   
 ### Updating
-Since, I work full time, I can work only on weekends and Github updates are released only Sundays. Minor errors can be released any time, but reflects will be shown only in NPM.     
+Since, I work full time, I can work only on weekends. Github updates are released only Sundays. Minor errors can be released any time, but reflects will be shown only in NPM.     
   
 # Description  
 
@@ -68,6 +68,7 @@ https://www.npmjs.com/package/express-request-limit
   * mongoose
   * redis
   * phantom (server side rendering via PhantomJs)
+  * chrome (experimental server side rendering via Chrome, becoming stable)
 
 # Layers
 There are built in layers for Express and Mongoose. A layer is a composite module in every project that uses the Corifeus Server. Every project is prefix. The built is ```core```.
@@ -77,6 +78,16 @@ Will become ```/api/PROJECT/APP/ROUTE/ACTION```.
 
 # Work
 * PhantomJs load babel-polyfill, libraryPath before loading
+
+## For Chrome
+Debian based:
+```bash
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - 
+sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' 
+sudo apt-get update 
+sudo apt-get install google-chrome-stable 
+```
+
 
 # MongoDB and Redis for Windows
 
@@ -169,7 +180,7 @@ There is a ```require('corifeus-server').registry```, it shows all modules, libr
 [//]: #@corifeus-footer
 
 ---
-[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.532-18
+[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.547-45
 
 [Corifeus](http://www.corifeus.tk) by [Patrik Laszlo](http://patrikx3.tk)
 

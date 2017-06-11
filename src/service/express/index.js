@@ -14,15 +14,16 @@ const inspect = require('./inspect');
 require('./response');
 const corifeus = require('../../registry');
 
+const utils = require('corifeus-utils');
+
 const service = function (settings) {
 
     this.decorator = corifeus.core.lib.express.decorator;
-    this.lib = service.lib;
 
-    this.boot = async () => {
-        console.info(`${service.prefix} started`);
 
-        const app = express();
+    this.middleware = () => {
+
+        const app = this.app;
 
         app.disable('x-powered-by');
 
@@ -55,11 +56,10 @@ const service = function (settings) {
         app.use(sessionAuthMiddleware());
 
         app.use(errorMiddleware());
+    }
 
-        // public
-        const publicPath = path.normalize(`${process.cwd()}/${settings.public}`);
-        console.info(`${service.prefix} static path: ${publicPath}`);
-        app.use('/public', express.static(publicPath));
+    this.routes = async () => {
+        const app = this.app;
 
         // load routes and child apps
         const registryRoutes = {};
@@ -148,8 +148,24 @@ const service = function (settings) {
 
                 app.use(`/api/${project}`, projectApp);
             }
-
         }
+        return registryRoutes;
+    }
+
+    this.boot = async () => {
+        console.info(`${service.prefix} started`);
+
+        const app = express();
+        this.app = app;
+
+        this.middleware();
+
+        // public
+        const publicPath = path.normalize(`${process.cwd()}/${settings.public}`);
+        console.info(`${service.prefix} static path: ${publicPath}`);
+        app.use('/public', express.static(publicPath));
+
+        const registryRoutes= this.routes();
 
         this.stats = {
             routes: registryRoutes,
@@ -158,20 +174,18 @@ const service = function (settings) {
         app.all('**', (req, res) => res.notFound());
 
 
-        let resolver, rejecter;
+        const { resolve, reject, promise } = utils.promise.deferred();
+
         app.listen(settings.port, () => {
             console.info(`${service.prefix} ready on ${settings.port}`);
-            resolver();
+            resolve();
         })
 
-        return new Promise((resolve, reject) => {
-            resolver = resolve;
-            rejecter = reject;
-        })
+        return promise;
     }
 };
 
-service.wants = ['mongoose', 'redis', 'phantom', 'session'];
+service.wants = ['mongoose', 'redis', 'session', 'chrome', 'phantom'];
 service.alias = 'express';
 
 module.exports = service

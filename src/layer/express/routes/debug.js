@@ -4,13 +4,13 @@ const corifeus = require('../../../registry');
 
 module.exports = async (app)  => {
 
-    if (corifeus.core.settings.debug) {
-        router.get('/kill', (req, res) => {
-            process.exit(1);
-        });
-
-        return router;
+    if (!corifeus.core.settings.debug) {
+        return;
     }
-    return;
 
+    router.get('/kill', (req, res) => {
+        process.exit(1);
+    });
+
+    return router;
 };

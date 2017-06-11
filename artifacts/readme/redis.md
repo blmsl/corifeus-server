@@ -22,7 +22,7 @@ Besides, when I can support, please note, I cannot support old versions, only th
    
 ### Built on Node 
 ``` 
-v8.0.0
+v8.1.0
 ```   
    
 The ```async``` and ```await``` keywords are required.
@@ -31,7 +31,7 @@ Install NodeJs:
 https://nodejs.org/en/download/package-manager/    
   
 ### Updating
-Since, I work full time, I can work only on weekends and Github updates are released only Sundays. Minor errors can be released any time, but reflects will be shown only in NPM.     
+Since, I work full time, I can work only on weekends. Github updates are released only Sundays. Minor errors can be released any time, but reflects will be shown only in NPM.     
   
 # Description  
 
@@ -48,7 +48,7 @@ https://github.com/MSOpenTech/redis/releases/download/win-3.2.100/Redis-x64-3.2.
 [//]: #@corifeus-footer
 
 ---
-[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.532-18
+[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.547-45
 
 [Corifeus](http://www.corifeus.tk) by [Patrik Laszlo](http://patrikx3.tk)
 

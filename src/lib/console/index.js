@@ -33,10 +33,10 @@ console.debug = function() {
         console.info.apply(console.info, arguments)
     }
 }
-console.error = function() {
+console.error = async function() {
     if (!disableEmail) {
         try {
-            corifeus.core.service.email.send({
+            await corifeus.core.service.email.send({
                 body: arguments,
                 subject: 'error core'
             })

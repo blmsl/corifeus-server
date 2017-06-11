@@ -9,6 +9,14 @@ const prefix = '[CLUSTER] [MASTER]'
 
 module.exports = async () => {
 
+    const loader = require('../../loader');
+    await loader({
+        type: 'lib',
+        blacklist: [
+            'core.lib.auth'
+        ]
+    });
+
     const settings = corifeus.core.lib.settings;
 
     let cores = settings.boot.core.lib.cluster.core;
