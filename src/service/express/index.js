@@ -165,14 +165,13 @@ const service = function (settings) {
         console.info(`${service.prefix} static path: ${publicPath}`);
         app.use('/public', express.static(publicPath));
 
-        const registryRoutes= this.routes();
+        const registryRoutes= await this.routes();
 
         this.stats = {
             routes: registryRoutes,
         }
 
         app.all('**', (req, res) => res.notFound());
-
 
         const { resolve, reject, promise } = utils.promise.deferred();
 
