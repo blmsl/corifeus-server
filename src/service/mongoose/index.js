@@ -45,7 +45,9 @@ const service = function(settings) {
             models: mongoose.modelNames()
         }
 
-        return mongoose.connect(settings.url).then(() => {
+        return mongoose.connect(settings.url, {
+            useMongoClient: true
+        }).then(() => {
             console.info(`${consolePrefix} ready`)
         })
     }
