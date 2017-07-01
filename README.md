@@ -15,7 +15,7 @@ This is an open source project. Just code.
    
 ### Built on Node 
 ``` 
-v8.1.2
+v8.1.3
 ```   
    
 The ```async``` and ```await``` keywords are required.
@@ -170,7 +170,8 @@ There is a ```require('corifeus-server').registry```, it shows all modules, libr
 [//]: #@corifeus-footer
 
 ---
-[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.557-57
+
+[**CORIFEUS-SERVER**](https://pages.corifeus.tk/corifeus-server) Build v1.1.563-64
 
 [Corifeus](http://www.corifeus.tk) by [Patrik Laszlo](http://patrikx3.tk)
 
