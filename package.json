@@ -1,6 +1,6 @@
 {
     "name": "corifeus-server",
-    "version": "1.1.563-64",
+    "version": "1.1.578-72",
     "corifeus": {
         "icon": "fa fa-server",
         "code": "Motor",
@@ -27,9 +27,9 @@
     "bugs": {
         "url": "https://github.com/patrikx3/corifeus-server/issues"
     },
-    "homepage": "https://pages.corifeus.tk/corifeus-server",
+    "homepage": "https://pages.corifeus.com/corifeus-server",
     "devDependencies": {
-        "corifeus-builder": "^1.7.685-33",
+        "corifeus-builder": "^1.7.700-39",
         "grunt-express-server": "^0.5.3",
         "ldapjs": "^1.0.1"
     },
@@ -38,20 +38,20 @@
         "ldapjs": "^1.0.1"
     },
     "dependencies": {
-        "chrome-remote-interface": "^0.23.3",
+        "chrome-remote-interface": "^0.24.1",
         "find-open-port": "^1.0.2",
         "babel-polyfill": "^6.23.0",
         "body-parser": "^1.17.2",
         "console-stamp": "^0.2.5",
         "cookie-parser": "^1.4.3",
-        "corifeus-utils": "^1.1.346-40",
+        "corifeus-utils": "^1.1.359-54",
         "cors": "^2.8.3",
         "express": "5.0.0-alpha.5",
         "glob": "^7.1.2",
         "ioredis": "^3.1.1",
         "lodash": "^4.17.4",
         "moment": "^2.18.1",
-        "mongoose": "^4.11.0",
+        "mongoose": "^4.11.1",
         "mz": "^2.6.0",
         "nodemailer": "^4.0.1",
         "pretty-bytes": "^4.0.2",

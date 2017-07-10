@@ -33,8 +33,12 @@ const service = function(settings) {
 
     console.info(`${consolePrefix} Max timeout: ${ms(timeoutMs)}`);
 
-    this.boot = () => {
+    const cacheDir = `${process.cwd()}/${settings.cache}`;
+
+    this.boot = async () => {
         console.debug(`${consolePrefix} ready`)
+
+        await utils.fs.ensureDir(cacheDir);
     };
 
     const debugResult = (result) => {
@@ -83,7 +87,7 @@ const service = function(settings) {
             }
 
 
-            const run = execFile('/opt/google/chrome/chrome', ['--headless', '--disable-gpu', `--remote-debugging-port=${port}`, url], (err, stdout, stderr) => {
+            const run = execFile('/opt/google/chrome/chrome', ['--headless', '--disable-gpu', `--remote-debugging-port=${port}`, url, '--enable-logging', /** '--v=1', **/ '--log-level=0', `--user-data-dir=${cacheDir}`], (err, stdout, stderr) => {
                     if (err) {
                         mainRejecter(err)
                     }
@@ -188,6 +192,11 @@ const service = function(settings) {
                         return evaluated.result.value;
                     }
 
+                    const stateUrlList = async() => {
+                        const evaluated = await Runtime.evaluate({expression: `JSON.stringify(window.corifeus)`})
+                        return evaluated.result.value;
+                    }
+
                     const httpStatus = async() => {
                         const evaluated = await Runtime.evaluate({expression: `window.corifeus && window.corifeus.core && window.corifeus.core.http ?  window.corifeus.core.http.status : 500`})
                         return evaluated.result.value;
@@ -198,23 +207,39 @@ const service = function(settings) {
                     let minIteration = 5;
                     let iteration = 0;
                     let done = false;
+                    const totalStatus = Math.round(timeoutMs / 5);
+                    let rightWaitTotalStatus = 0;
 
                     const timeout = setTimeout(() => {
-                        console.debug(consolePrefix, 'Max timeout!')
+                        console.warn(consolePrefix, `Max timeout ${settings.timeoutSeconds} seconds!`)
                         done = true;
                     }, timeoutMs)
 
                     do {
                         const status = await state();
-                        console.debug(consolePrefix, 'window.corifeus.core.http.counter', status);
+//                        console.debug(consolePrefix, 'window.corifeus.core.http.counter', status);
                         if (status === 0) {
                             iteration++;
                             if (iteration >= minIteration) {
                                 done = true;
                                 clearTimeout(timeout);
                             }
+                        } else {
+//                            console.debug('rightWaitTotalStatus', rightWaitTotalStatus)
+                            let stateUrlListResult;
+                            if (rightWaitTotalStatus === 0) {
+                                stateUrlListResult = await stateUrlList();
+
+                                if (stateUrlListResult  !== undefined) {
+                                    console.debug(consolePrefix, 'stateUrlList ', stateUrlListResult);
+                                }
+                            }
+                            rightWaitTotalStatus += wait;
+                            if (rightWaitTotalStatus >= totalStatus) {
+                                rightWaitTotalStatus = 0;
+                            }
                         }
-                        console.debug(consolePrefix, `wait until corifeus is loaded, ${wait}ms`)
+//                        console.debug(consolePrefix, `wait until corifeus is loaded, ${wait}ms`)
                         await utils.timer.wait(wait);
                     } while (!done)
 
