@@ -5,6 +5,8 @@ const _ = require('lodash');
 
 const corifeus = require('../../registry');
 
+const utils = require('corifeus-utils');
+
 const service = function(settings) {
     const consolePrefix = service.prefix;
 
@@ -39,17 +41,33 @@ const service = function(settings) {
     });
 
 
-    this.boot = async () => {
+    this.boot = () => {
         this.instance = mongoose;
+
+        const { resolve, reject, promise } = utils.promise.deferred();
+
         this.stats = {
             models: mongoose.modelNames()
         }
-
-        return mongoose.connect(settings.url, {
+        mongoose.connect(settings.url, {
             useMongoClient: true
-        }).then(() => {
+        });
+
+        const waitForSometime = setTimeout(() => {
+            reject();
+        }, 5000)
+
+        mongoose.connection.on('connected', function () {
             console.info(`${consolePrefix} ready`)
-        })
+            clearTimeout(waitForSometime);
+            resolve();
+        });
+
+        mongoose.connection.on('error', function (err) {
+            console.error('${consolePrefix error', err);
+        });
+
+        return promise;
     }
 }
 

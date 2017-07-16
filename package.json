@@ -1,6 +1,6 @@
 {
     "name": "corifeus-server",
-    "version": "1.1.578-72",
+    "version": "1.1.588-81",
     "corifeus": {
         "icon": "fa fa-server",
         "code": "Motor",
@@ -29,33 +29,34 @@
     },
     "homepage": "https://pages.corifeus.com/corifeus-server",
     "devDependencies": {
-        "corifeus-builder": "^1.7.700-39",
+        "corifeus-builder": "^1.7.706-44",
         "grunt-express-server": "^0.5.3",
+        "phantom": "^4.0.4",
         "ldapjs": "^1.0.1"
     },
     "peerDependencies": {
-        "phantom": "^4.0.3",
+        "phantom": "^4.0.4",
         "ldapjs": "^1.0.1"
     },
     "dependencies": {
-        "chrome-remote-interface": "^0.24.1",
+        "chrome-remote-interface": "^0.24.2",
         "find-open-port": "^1.0.2",
         "babel-polyfill": "^6.23.0",
         "body-parser": "^1.17.2",
         "console-stamp": "^0.2.5",
         "cookie-parser": "^1.4.3",
-        "corifeus-utils": "^1.1.359-54",
-        "cors": "^2.8.3",
+        "corifeus-utils": "^1.1.365-59",
+        "cors": "^2.8.4",
         "express": "5.0.0-alpha.5",
         "glob": "^7.1.2",
         "ioredis": "^3.1.1",
         "lodash": "^4.17.4",
         "moment": "^2.18.1",
-        "mongoose": "^4.11.1",
+        "mongoose": "^4.11.3",
         "mz": "^2.6.0",
         "nodemailer": "^4.0.1",
         "pretty-bytes": "^4.0.2",
-        "pretty-ms": "^2.1.0",
+        "pretty-ms": "^3.0.0",
         "socketio": "^1.0.0",
         "timestring": "^4.0.0",
         "uuid": "^3.1.0"

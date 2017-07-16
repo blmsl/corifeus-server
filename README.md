@@ -15,7 +15,7 @@ This is an open source project. Just code.
    
 ### Built on Node 
 ``` 
-v8.1.3
+v8.1.4
 ```   
    
 The ```async``` and ```await``` keywords are required.
@@ -28,8 +28,13 @@ https://nodejs.org/en/download/package-manager/
                         
 [//]: #@corifeus-header:end
 
+# Dependencies
+* Nginx
+* Redis
+* MongoDB
+* NodeJs 
 
-
+  
 This is the NodeJs based server / SocketIO / Mongoose.
 
 # corifeus-boot.json
@@ -171,7 +176,7 @@ There is a ```require('corifeus-server').registry```, it shows all modules, libr
 
 ---
 
-[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.578-72
+[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.588-81
 
 [Corifeus](http://www.corifeus.com) by [Patrik Laszlo](http://patrikx3.com)
 

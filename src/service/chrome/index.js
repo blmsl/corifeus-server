@@ -45,10 +45,11 @@ const service = function(settings) {
         console.debug(`${consolePrefix} result`, utils.object.reduce(result));
     }
 
-
-
     this.render= async (url) => {
 
+        if (url.endsWith('/')) {
+            url = url.slice(0, -1);
+        }
         console.debug(`${consolePrefix} Chrome load`, url);
 
         const redisKey = `${redisPrefix}${url}`;

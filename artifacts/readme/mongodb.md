@@ -45,7 +45,7 @@ storage:
 
 ---
 
-[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.578-72
+[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.588-81
 
 [Corifeus](http://www.corifeus.com) by [Patrik Laszlo](http://patrikx3.com)
 
