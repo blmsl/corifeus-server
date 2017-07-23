@@ -12,6 +12,11 @@ const clusterLoader =  async () => {
                 worker();
                 break;
 
+            case 'singleton':
+                const singleton = require('./main/singleton');
+                singleton();
+                break;
+
             default:
                 throw new Error(`Unknown fork command: ${process.env.CORIFUES_SERVER_COMMAND}`)
         }

@@ -7,7 +7,19 @@ require('console-stamp')(console, {
     metadata: function () {
         let base;
         if (cluster.isWorker) {
-            base = `[WORKER ${_.padStart(cluster.worker.id, 3, 0)}]`
+            const baseName = process.env.CORIFUES_SERVER_COMMAND.toUpperCase();
+            switch(process.env.CORIFUES_SERVER_COMMAND) {
+                case 'worker':
+                    base = `[${baseName} ${_.padStart(cluster.worker.id, 3, 0)}]`
+                    break;
+
+                case 'singleton':
+                    base = `[${baseName}]`
+                    break;
+
+                default:
+                    throw new Error(`Unknown fork command: ${process.env.CORIFUES_SERVER_COMMAND}`)
+            }
         } else {
             base = `[MASTER]`;
         }

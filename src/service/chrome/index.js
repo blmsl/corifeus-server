@@ -10,7 +10,7 @@ const findPort = require('find-open-port');
 
 const execFile = require('child_process').execFile;
 
-const service = function(settings) {
+const service = function (settings) {
     const consolePrefix = service.prefix;
     console.info(`${consolePrefix} started`);
 
@@ -23,8 +23,8 @@ const service = function(settings) {
 
     const redisTtlMinutes = settings.redisTtlMinutes * 60;
     // seconds
-    if (redisTtlMinutes> 0) {
-        console.info(`${consolePrefix} Cache TTL: ${ms(redisTtlMinutes* 1000)}`);
+    if (redisTtlMinutes > 0) {
+        console.info(`${consolePrefix} Cache TTL: ${ms(redisTtlMinutes * 1000)}`);
     } else {
         console.info(`${consolePrefix} Cache disabled`);
     }
@@ -32,6 +32,10 @@ const service = function(settings) {
     const timeoutMs = settings.timeoutSeconds * 1000;
 
     console.info(`${consolePrefix} Max timeout: ${ms(timeoutMs)}`);
+
+    let killTimeout = settings.killSeconds * 1000;
+
+    console.info(`${consolePrefix} Max kill timeout: ${ms(killTimeout)}`);
 
     const cacheDir = `${process.cwd()}/${settings.cache}`;
 
@@ -45,53 +49,65 @@ const service = function(settings) {
         console.debug(`${consolePrefix} result`, utils.object.reduce(result));
     }
 
-    this.render= async (url) => {
+    let mainClientPromised;
+    let port;
+    let run;
 
-        if (url.endsWith('/')) {
-            url = url.slice(0, -1);
+    let killTimeoutSetTimout;
+    let timeoutResolve;
+
+
+    const cleanupChrome  = () => {
+        clearTimeout(timeoutResolve);
+        clearTimeout(killTimeoutSetTimout);
+        mainClientPromised = undefined;
+        port = undefined;
+        if (run) {
+            run.kill();
         }
-        console.debug(`${consolePrefix} Chrome load`, url);
+    }
 
-        const redisKey = `${redisPrefix}${url}`;
 
-        if (redisTtlMinutes > 0) {
-            const exits  = await redis.client.exists(redisKey);
-            if (exits) {
-                console.debug(`${consolePrefix} found redis cache: ${redisKey}`);
-                const result = JSON.parse(await redis.client.get(redisKey));
-                debugResult(result);
-                return result;
-            }
+    const connectChrome = async () => {
+        console.debug(`${consolePrefix} connectChrome`);
+
+        clearTimeout(killTimeoutSetTimout);
+        killTimeoutSetTimout = setTimeout(() => {
+            cleanupChrome();
+        }, killTimeout)
+        if (mainClientPromised !== undefined) {
+            return;
         }
+        mainClientPromised = utils.promise.deferred();
+
+        console.debug(`${consolePrefix} connectChrome client connecting now`);
 
         const retry = 250;
         const maxConnectRetry = 5;
         let connectRetryCount = 0;
+
         const startChrome = async () => {
-            let port;
             let available = false;
             do {
                 port = utils.random.integer(30000, 40000);
                 available = await findPort.isAvailable(port)
-            } while(!available)
+            } while (!available)
 
-            let timeoutResolve;
 
             console.debug(`${consolePrefix} Found chrome new debug port: ${port}`);
 
-            const { resolve, reject, promise} = utils.promise.deferred();
+            const {resolve, reject, promise} = utils.promise.deferred();
 
             const mainRejecter = (error) => {
-                run.kill();
-                clearTimeout(timeoutResolve)
+                console.log(consolePrefix, 'mainRejecter problem');
+                cleanupChrome();
                 reject(error);
             }
 
-
-            const run = execFile('/opt/google/chrome/chrome', ['--headless', '--disable-gpu', `--remote-debugging-port=${port}`, url, '--enable-logging', /** '--v=1', **/ '--log-level=0', `--user-data-dir=${cacheDir}`], (err, stdout, stderr) => {
-                    if (err) {
-                        mainRejecter(err)
-                    }
+            run = execFile('/opt/google/chrome/chrome', [`--remote-debugging-port=${port}`, '--headless', '--disable-gpu', '--enable-logging', /** '--v=1', **/ '--log-level=0', `--user-data-dir=${cacheDir}`, `--user-agent="${agent}"`, 'about:blank'], (err, stdout, stderr) => {
+                if (err) {
+                    mainRejecter(err)
+                }
             });
 
             run.stdout.on('data', (data) => {
@@ -103,42 +119,42 @@ const service = function(settings) {
                     mainRejecter(new Error(data));
                 }
             });
-            run.on('close', function() {
+            run.on('close', function () {
                 console.debug(`${consolePrefix} close`, arguments)
             })
-            run.on('disconnect', function() {
+            run.on('disconnect', function () {
                 console.debug(`${consolePrefix} disconnect`, arguments)
             })
-            run.on('error', function() {
+            run.on('error', function () {
                 console.error(`${consolePrefix} error`, arguments)
             })
-            run.on('message', function() {
+            run.on('message', function () {
                 console.debug(`${consolePrefix} message`, arguments)
             })
-            run.on('exit', function() {
+            run.on('exit', function () {
                 console.debug(`${consolePrefix} exit`, arguments)
             })
+
+            await utils.timer.wait(2500);
 
             timeoutResolve = setTimeout(() => {
                 resolve();
             }, retry)
 
             await promise;
-
-            return {
-                port: port,
-                run: run,
-            };
+            console.debug(`${consolePrefix} start chrome now running
+            `);
+            return run;
         }
 
-        let port;
         let worksChrome = false;
-        let chromeInfo;
         let maxTry = 10;
         let tries = 0;
-        do{
+        do {
             try {
-                chromeInfo = await startChrome();
+                console.debug(`${consolePrefix} start chrome now`);
+
+                run = await startChrome();
                 worksChrome = true;
             } catch (e) {
                 tries++;
@@ -147,121 +163,28 @@ const service = function(settings) {
                     throw new Error(consolePrefix, 'cannot start Chrome process');
                 }
             }
-        } while(!worksChrome)
+        } while (!worksChrome)
 
-        const {resolve, reject, promise } = utils.promise.deferred();
+        console.debug(`${consolePrefix} start chrome now running found`);
 
-        const generatedResolve = (data) => {
-            chromeInfo.run.kill();
-            resolve(data);
-        }
+        const connect = async () => {
+            const client = await CDP({
+//                port: port,
+                target: `ws://localhost:${port}/devtools/browser`
+            });
+            console.debug(consolePrefix, 'client done');
 
-        const generatedReject = function() {
-            console.error(arguments);
-            chromeInfo.run.kill();
-            reject(arguments);
-        }
+            mainClientPromised.client = client;
+            mainClientPromised.run = run;
 
+            // enable events then start!
+            try {
+                console.debug(consolePrefix, 'client enabled');
+                mainClientPromised.resolve();
+            } catch (e) {
+                console.debug(consolePrefix, 'client enabled error');
 
-        const connect = () => {
-            CDP({
-                port: chromeInfo.port
-            }, async(client) => {
-                const {Network, Page, Runtime} = client;
-
-
-                // setup handlers
-                Network.requestWillBeSent((params) => {
-                    console.debug(consolePrefix, params.request.url);
-                });
-
-                Page.loadEventFired(() => {
-                    console.debug(consolePrefix, 'loadEventFired');
-                });
-                // enable events then start!
-                try {
-                    await Promise.all([
-                        Network.enable(),
-                        Page.enable()
-                    ]);
-                    const getHtml = async () => {
-                        const evaluated = await Runtime.evaluate({expression: 'document.documentElement.innerHTML'})
-                        return evaluated.result.value;
-                    }
-                    const state = async() => {
-                        const evaluated = await Runtime.evaluate({expression: `window.corifeus && window.corifeus.core && window.corifeus.core.http ?  window.corifeus.core.http.counter : undefined`})
-                        return evaluated.result.value;
-                    }
-
-                    const stateUrlList = async() => {
-                        const evaluated = await Runtime.evaluate({expression: `JSON.stringify(window.corifeus)`})
-                        return evaluated.result.value;
-                    }
-
-                    const httpStatus = async() => {
-                        const evaluated = await Runtime.evaluate({expression: `window.corifeus && window.corifeus.core && window.corifeus.core.http ?  window.corifeus.core.http.status : 500`})
-                        return evaluated.result.value;
-                    }
-
-
-                    let wait = 250;
-                    let minIteration = 5;
-                    let iteration = 0;
-                    let done = false;
-                    const totalStatus = Math.round(timeoutMs / 5);
-                    let rightWaitTotalStatus = 0;
-
-                    const timeout = setTimeout(() => {
-                        console.warn(consolePrefix, `Max timeout ${settings.timeoutSeconds} seconds!`)
-                        done = true;
-                    }, timeoutMs)
-
-                    do {
-                        const status = await state();
-//                        console.debug(consolePrefix, 'window.corifeus.core.http.counter', status);
-                        if (status === 0) {
-                            iteration++;
-                            if (iteration >= minIteration) {
-                                done = true;
-                                clearTimeout(timeout);
-                            }
-                        } else {
-//                            console.debug('rightWaitTotalStatus', rightWaitTotalStatus)
-                            let stateUrlListResult;
-                            if (rightWaitTotalStatus === 0) {
-                                stateUrlListResult = await stateUrlList();
-
-                                if (stateUrlListResult  !== undefined) {
-                                    console.debug(consolePrefix, 'stateUrlList ', stateUrlListResult);
-                                }
-                            }
-                            rightWaitTotalStatus += wait;
-                            if (rightWaitTotalStatus >= totalStatus) {
-                                rightWaitTotalStatus = 0;
-                            }
-                        }
-//                        console.debug(consolePrefix, `wait until corifeus is loaded, ${wait}ms`)
-                        await utils.timer.wait(wait);
-                    } while (!done)
-
-                    const html = (await getHtml());
-
-                    const result = {
-                        status: await httpStatus(),
-                        content: html,
-                    }
-                    if (redisTtlMinutes > 0) {
-                        redis.client.set(redisKey, JSON.stringify(result), 'ex', redisTtlMinutes);
-                    }
-                    generatedResolve(result);
-                } catch (e) {
-                    generatedReject(e);
-                } finally {
-                    client.close();
-                }
-
-            }).on('error', (err) => {
-                console.warn(consolePrefix, 'chrome-remote-interface error, try again', chromeInfo.port, err);
+                console.warn(consolePrefix, 'chrome-remote-interface error, try again', port, err);
                 if (err.code === 'ECONNREFUSED') {
                     connectRetryCount++;
                     if (connectRetryCount < maxConnectRetry) {
@@ -269,16 +192,184 @@ const service = function(settings) {
                             connect();
                         }, retry * (connectRetryCount + 1))
                     } else {
-                        generatedReject(err);
+                        throw(err);
                     }
                 } else {
-                    generatedReject(err);
+                    throw(err);
                 }
-            });
-        }
-        connect();
 
-        return promise;
+                generatedReject(e);
+            } finally {
+            }
+        }
+        await connect();
+        return mainClientPromised.promise;
+    }
+
+    this.render = async (url) => {
+        await connectChrome();
+        console.debug(`${consolePrefix} render start`);
+
+        if (url.endsWith('/')) {
+            url = url.slice(0, -1);
+        }
+        console.debug(`${consolePrefix} Chrome load`, url);
+
+        const redisKey = `${redisPrefix}${url}`;
+
+        if (redisTtlMinutes > 0) {
+            const exits = await redis.client.exists(redisKey);
+            if (exits) {
+                console.debug(`${consolePrefix} found redis cache: ${redisKey}`);
+                const result = JSON.parse(await redis.client.get(redisKey));
+                debugResult(result);
+                return result;
+            }
+        }
+
+        console.debug(`${consolePrefix} render tab generating`);
+
+        async function doInNewContext(action) {
+            console.debug(consolePrefix, 'doInNewContext')
+            // connect to the DevTools special target
+            const browser = mainClientPromised.client;
+//            await browser.open();
+            // create a new context
+            const {Target} = browser;
+            const {browserContextId} = await Target.createBrowserContext();
+            const {targetId} = await Target.createTarget({
+                url: 'about:blank',
+                browserContextId,
+                port: port,
+            });
+            // connct to the new context
+            const client = await CDP({
+                target: targetId,
+                port: port,
+            });
+            // perform user actions on it
+            try {
+                return await action(client);
+            } finally {
+                // cleanup
+                await Target.closeTarget({targetId});
+            }
+        }
+
+        const tab = async () => {
+
+            console.debug(`${consolePrefix} render new tab start`);
+
+            // this basically is the usual example
+            async function newTab(client) {
+                // extract domains
+                client.Security.certificateError(({eventId}) => {
+                    client.Security.handleCertificateError({
+                        eventId,
+                        action: 'continue'
+                    });
+                });
+
+
+                // enable events then start!
+                await Promise.all([
+                    client.Network.enable(),
+                    client.Page.enable(),
+                    client.Security.enable(),
+                    client.Security.setOverrideCertificateErrors({override: true}),
+                ]);
+
+                // setup handlers
+                client.Network.requestWillBeSent((params) => {
+                    console.debug(consolePrefix, params.request.url);
+                });
+
+                console.debug(consolePrefix, 'Page.navigate', url);
+                await client.Page.navigate({
+                    url: url,
+                });
+
+                await client.Page.loadEventFired();
+
+                const getHtml = async () => {
+                    const evaluated = await client.Runtime.evaluate({expression: 'document.documentElement.innerHTML'})
+                    //console.log(consolePrefix, 'getHtml', evaluated)
+                    return evaluated.result.value;
+                }
+                const state = async () => {
+                    const evaluated = await client.Runtime.evaluate({expression: `window.corifeus && window.corifeus.core && window.corifeus.core.http ?  window.corifeus.core.http.counter : undefined`})
+                    console.log(consolePrefix, 'state', evaluated)
+                    return evaluated.result.value;
+                }
+
+                const stateUrlList = async () => {
+                    const evaluated = await client.Runtime.evaluate({expression: `JSON.stringify(window.corifeus)`})
+                    console.log(consolePrefix, 'stateUrlList', evaluated)
+                    return evaluated.result.value;
+                }
+
+                const httpStatus = async () => {
+                    const evaluated = await client.Runtime.evaluate({expression: `window.corifeus && window.corifeus.core && window.corifeus.core.http ?  window.corifeus.core.http.status : 500`})
+                    console.log(consolePrefix, 'httpStatus', evaluated)
+                    return evaluated.result.value;
+                }
+
+
+                let wait = 250;
+                let minIteration = 5;
+                let iteration = 0;
+                let done = false;
+                const totalStatus = Math.round(timeoutMs / 5);
+                let rightWaitTotalStatus = 0;
+
+                const timeout = setTimeout(() => {
+                    console.warn(consolePrefix, `Max timeout ${settings.timeoutSeconds} seconds!`)
+                    done = true;
+                }, timeoutMs)
+
+                do {
+                    const status = await state();
+//                        console.debug(consolePrefix, 'window.corifeus.core.http.counter', status);
+                    if (status === 0) {
+                        iteration++;
+                        if (iteration >= minIteration) {
+                            done = true;
+                            clearTimeout(timeout);
+                        }
+                    } else {
+//                            console.debug('rightWaitTotalStatus', rightWaitTotalStatus)
+                        let stateUrlListResult;
+                        if (rightWaitTotalStatus === 0) {
+                            stateUrlListResult = await stateUrlList();
+
+                            if (stateUrlListResult !== undefined) {
+                                console.debug(consolePrefix, 'stateUrlList ', stateUrlListResult);
+                            }
+                        }
+                        rightWaitTotalStatus += wait;
+                        if (rightWaitTotalStatus >= totalStatus) {
+                            rightWaitTotalStatus = 0;
+                        }
+                    }
+//                        console.debug(consolePrefix, `wait until corifeus is loaded, ${wait}ms`)
+                    await utils.timer.wait(wait);
+                } while (!done)
+
+                const html = (await getHtml());
+
+                const result = {
+                    status: await httpStatus(),
+                    content: html,
+                    lastModifiedDate: (new Date()).toUTCString(),
+                }
+                if (redisTtlMinutes > 0) {
+                    redis.client.set(redisKey, JSON.stringify(result), 'ex', redisTtlMinutes);
+                }
+                return result;
+            }
+            return await doInNewContext(newTab);
+        }
+        return await tab();
     }
 }
 

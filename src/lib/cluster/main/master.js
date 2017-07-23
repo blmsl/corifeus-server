@@ -38,7 +38,7 @@ module.exports = async () => {
 
     console.info('')
 
-    console.log(`${prefix} ${settings.pkg.description} v${settings.pkg.version} on port ${settings.boot.core.service.express.port} started, ${cores} core${cores > 1 ? 's + 1 master' : ''}`);
+    console.log(`${prefix} ${settings.pkg.description} v${settings.pkg.version} on port ${settings.boot.core.service.express.port} started, ${cores} core${cores > 1 ? 's + 1 singleton + 1 master' : ''}`);
 
     //todo create generate secret in its own lib - cluster lib!!!
     // generate secret
@@ -85,8 +85,11 @@ module.exports = async () => {
         ]
     })
 
-    while(Object.keys(cluster.workers).length < cores) {
+    corifeus.core.cluster.fork('singleton');
+
+    while(Object.keys(cluster.workers).length  < cores + 1) {
         corifeus.core.cluster.fork('worker');
     }
+
 
 }

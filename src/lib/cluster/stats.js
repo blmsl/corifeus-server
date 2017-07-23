@@ -14,6 +14,7 @@ stats.master = async () => {
         multi: workers,
     });
 
+    /*
     let pageCount = 0;
     const usage = {};
     results.response.forEach((response, index) => {
@@ -23,10 +24,11 @@ stats.master = async () => {
             usage[key][index] = response.usage[key];
         })
     })
+    */
 
     const stats = {
         workers: workers,
-        pageCount: pageCount,
+//        pageCount: pageCount,
         usage: usage
     };
 

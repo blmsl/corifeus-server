@@ -184,7 +184,7 @@ const service = function (settings) {
     }
 };
 
-service.wants = ['mongoose', 'redis', 'session', 'chrome', 'phantom'];
+service.wants = ['mongoose', 'redis', 'session'];
 service.alias = 'express';
 
 module.exports = service
