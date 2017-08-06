@@ -17,7 +17,7 @@ https://github.com/MSOpenTech/redis/releases/download/win-3.2.100/Redis-x64-3.2.
 
 ---
 
-[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.605-98
+[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.634-128
 
 [Corifeus](http://www.corifeus.com) by [Patrik Laszlo](http://patrikx3.com)
 

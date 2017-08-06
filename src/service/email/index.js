@@ -15,10 +15,7 @@ const service = function(settings) {
         return singletonInstance;
     }
 
-    const transporter = nodemailer
-        .createTransport(settings.nodemailer.config);
-
-    const send = (from, to, subject, body) => {
+    const send = async (from, to, subject, body) => {
         if (body === undefined) {
             body = subject;
             subject = '';
@@ -61,14 +58,16 @@ ${JSON.stringify(body, null, 2)}
             html: body
         };
         console.debug(`${consolePrefix} send new mail subject: ${subject}`);
-        transporter.sendMail(message)
-            .then((info) => {
-                console.info(info.response);
-            })
-            .catch((error) => {
-                console.debug(`${consolePrefix} send error email`);
-                console.error(error);
-            });
+
+        try {
+            let transporter = nodemailer.createTransport(settings.nodemailer.config);
+            const info = await transporter.sendMail(message);
+            console.log(info.response);
+            transporter.close();
+        } catch (e) {
+            console.log(`send error email`, message);
+            console.error(e, message);
+        }
     }
 
     const factory = {

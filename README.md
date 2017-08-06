@@ -1,6 +1,7 @@
 [//]: #@corifeus-header
 
  [![Build Status](https://travis-ci.org/patrikx3/corifeus-server.svg?branch=master)](https://travis-ci.org/patrikx3/corifeus-server)  [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/patrikx3/corifeus-server/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/patrikx3/corifeus-server/?branch=master)  [![Code Coverage](https://scrutinizer-ci.com/g/patrikx3/corifeus-server/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/patrikx3/corifeus-server/?branch=master)  
+ 
   
 [![NPM](https://nodei.co/npm/corifeus-server.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/corifeus-server/)
 ---
@@ -176,7 +177,7 @@ There is a ```require('corifeus-server').registry```, it shows all modules, libr
 
 ---
 
-[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.605-98
+[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.634-128
 
 [Corifeus](http://www.corifeus.com) by [Patrik Laszlo](http://patrikx3.com)
 

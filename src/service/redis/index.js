@@ -1,4 +1,6 @@
 const Redis = require('ioredis');
+const url = require('url');
+const utils = require('corifeus-utils');
 
 function service(settings) {
 
@@ -11,8 +13,7 @@ function service(settings) {
         return new Redis(settings.url);
     }
 
-    const client = this.new();
-    this.client = client;
+    this.client = undefined;
 
     const prefixes = {};
 
@@ -50,9 +51,14 @@ function service(settings) {
     }
 
     this.boot = async () => {
+
+        const redisUrl = new url.URL(settings.url);
+
         return new Promise((resolve, reject) => {
+            const client = this.new();
             client.on('ready', async() => {
                 console.info(`${consolePrefix} ready`)
+                this.client = client;
                 resolve();
             })
             client.on('error', async(e) => {
