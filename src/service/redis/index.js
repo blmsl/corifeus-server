@@ -10,7 +10,11 @@ function service(settings) {
     console.info(`${consolePrefix} started`);
 
     this.new = () => {
-        return new Redis(settings.url);
+        try {
+            return new Redis(settings.url);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     this.client = undefined;
@@ -51,21 +55,25 @@ function service(settings) {
     }
 
     this.boot = async () => {
+        try {
+            const redisUrl = new url.URL(settings.url);
 
-        const redisUrl = new url.URL(settings.url);
+            return new Promise((resolve, reject) => {
+                const client = this.new();
+                client.on('ready', async() => {
+                    console.info(`${consolePrefix} ready`)
+                    this.client = client;
+                    resolve();
+                })
+                client.on('error', async(e) => {
+                    console.error(`${consolePrefix} error`)
+                    reject(e);
+                })
+            })
 
-        return new Promise((resolve, reject) => {
-            const client = this.new();
-            client.on('ready', async() => {
-                console.info(`${consolePrefix} ready`)
-                this.client = client;
-                resolve();
-            })
-            client.on('error', async(e) => {
-                console.error(`${consolePrefix} error`)
-                reject(e);
-            })
-        })
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     this.communicate = require('./communicate')({

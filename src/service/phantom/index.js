@@ -154,12 +154,12 @@ const service = function(settings) {
                             isComplete = true;
                             await page.injectJs('./node_modules/babel-polyfill/dist/polyfill.min.js');
                             (await page.evaluate(function() {
-                                window.corifeusPhantom.wait = false;
+                                window.corifeusPreloader.wait = false;
                             }))
                         }
                     } else {
                         const phantomBrowserData = (await page.evaluate(function() {
-                            return window.corifeusPhantom;
+                            return window.corifeusPreloader;
                         }))
                         let counter = 0;
                         let wait = false;
