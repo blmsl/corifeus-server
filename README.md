@@ -177,7 +177,7 @@ There is a ```require('corifeus-server').registry```, it shows all modules, libr
 
 ---
 
-[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.657-154
+[**CORIFEUS-SERVER**](https://pages.corifeus.com/corifeus-server) Build v1.1.661-156
 
 [Corifeus](http://www.corifeus.com) by [Patrik Laszlo](http://patrikx3.com)
 
