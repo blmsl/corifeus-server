@@ -1,6 +1,6 @@
 {
     "name": "corifeus-server",
-    "version": "1.1.677-162",
+    "version": "1.1.680-163",
     "corifeus": {
         "icon": "fa fa-server",
         "code": "Motor",
@@ -30,7 +30,7 @@
     },
     "homepage": "https://pages.corifeus.com/corifeus-server",
     "devDependencies": {
-        "corifeus-builder": "^1.7.772-105",
+        "corifeus-builder": "^1.7.775-106",
         "grunt-express-server": "^0.5.3",
         "phantom": "^4.0.5",
         "ldapjs": "^1.0.1"
@@ -46,7 +46,7 @@
         "body-parser": "^1.17.2",
         "console-stamp": "^0.2.5",
         "cookie-parser": "^1.4.3",
-        "corifeus-utils": "^1.1.451-125",
+        "corifeus-utils": "^1.1.454-126",
         "cors": "^2.8.4",
         "express": "5.0.0-alpha.5",
         "glob": "^7.1.2",
